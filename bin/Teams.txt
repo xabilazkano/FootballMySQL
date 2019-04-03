@@ -1,0 +1,12 @@
+RealMadrid::Zizou
+Barcelona::Valverde
+Oiartzun::Ekaitz
+Usurbil::XabierLazkano
+RealSociedad::ImanolAlguacil
+Getafe::Francisco
+Chelsea::Kepa
+Arsenal::Wenger
+ManchesterCity::Guardiola
+ManchesterUnited::Sheokgoe
+Liverpool::Klopp
+Tottenham::Pochetino
