@@ -6,6 +6,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import javax.swing.JFrame;
@@ -47,15 +50,26 @@ public class AddTeam {
 
 	/**
 	 * Create the application.
+	 * @throws ClassNotFoundException 
+	 * @throws SQLException 
 	 */
 
-	public AddTeam() {
+	public AddTeam() throws ClassNotFoundException, SQLException {
 		initialize();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setBounds(100, 100, 440, 255);
 		JPanel contentPane = new JPanel();
 		frame.setContentPane(contentPane);
 		contentPane.setLayout(null);
+		
+		
+		Class.forName("com.mysql.cj.jdbc.Driver");
+
+
+        String oracleURL = "jdbc:mysql://localhost/football?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+
+
+        Connection conn =  DriverManager.getConnection(oracleURL, "root", "xusurbil15");
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBackground(SystemColor.activeCaption);
@@ -275,17 +289,20 @@ public class AddTeam {
 		JButton btnAddTeam = new JButton("Add team");
 		btnAddTeam.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				File teamsFile = new File("C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\Teams.txt");
+				PreparedStatement pst;
 				try {
-					BufferedWriter writer = new BufferedWriter(new FileWriter(teamsFile, true));
-					String team = textField.getText() + "::" + textField_1.getText() + "\n";
-					writer.write(team);
-					writer.close();
+					pst = conn.prepareStatement("insert into teams values(?,?);");
+					
+					pst.setString(1, textField.getText());
+					pst.setString(2,textField_1.getText());
+					
+		
+					pst.executeUpdate();
+					
 					Football show = new Football(2);
 					show.getFrame().setVisible(true);
 					frame.dispose();
-
-				} catch (IOException | ClassNotFoundException | SQLException e1) {
+				} catch (SQLException | ClassNotFoundException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}

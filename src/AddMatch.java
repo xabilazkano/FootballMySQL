@@ -6,6 +6,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -42,8 +46,10 @@ public class AddMatch {
 
 	/**
 	 * Create the application.
+	 * @throws ClassNotFoundException 
+	 * @throws SQLException 
 	 */
-	public AddMatch() {
+	public AddMatch() throws ClassNotFoundException, SQLException {
 		initialize();
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -51,6 +57,14 @@ public class AddMatch {
 		JPanel contentPane = new JPanel();
 		frame.setContentPane(contentPane);
 		contentPane.setLayout(null);
+		
+		Class.forName("com.mysql.cj.jdbc.Driver");
+
+
+        String oracleURL = "jdbc:mysql://localhost/football?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+
+
+        Connection conn =  DriverManager.getConnection(oracleURL, "root", "xusurbil15");
 		
 
 		JMenuBar menuBar = new JMenuBar();
@@ -290,17 +304,21 @@ public class AddMatch {
 		JButton btnAddMatch = new JButton("Add match");
 		btnAddMatch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				File matchesFile = new File("C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\ChampionsMatches.txt");
+				PreparedStatement pst;
 				try {
-					BufferedWriter writer = new BufferedWriter(new FileWriter(matchesFile,true));
-					String match = textField.getText()+"::"+textField_1.getText()+"::"+textField_2.getText()+"::"+textField_3.getText()+"\n";
-					writer.write(match);
-					writer.close();
+					pst = conn.prepareStatement("insert into matches(local_team,local_goals,visitor_team,visitor_goals) values(?,?,?,?);");
+					
+					pst.setString(1, textField.getText());
+					pst.setInt(2, Integer.parseInt(textField_2.getText()));
+					pst.setString(3, textField_1.getText());
+					pst.setInt(4, Integer.parseInt(textField_3.getText()));
+		
+					pst.executeUpdate();
+					
 					Football show = new Football(3);
 					show.getFrame().setVisible(true);
 					frame.dispose();
-					
-				} catch (IOException e1) {
+				} catch (SQLException | ClassNotFoundException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}

@@ -7,6 +7,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 import javax.swing.JFrame;
@@ -44,12 +48,22 @@ public class Delete {
 
 	/**
 	 * Create the application.
+	 * @throws ClassNotFoundException 
+	 * @throws SQLException 
 	 */
-	public Delete() {
+	public Delete() throws ClassNotFoundException, SQLException {
 		initialize();
 		JPanel contentPane = new JPanel();
 		frame.setContentPane(contentPane);
 		contentPane.setLayout(null);
+		
+		Class.forName("com.mysql.cj.jdbc.Driver");
+
+
+        String oracleURL = "jdbc:mysql://localhost/football?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+
+
+        Connection conn =  DriverManager.getConnection(oracleURL, "root", "xusurbil15");
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBackground(SystemColor.activeCaption);
@@ -260,11 +274,20 @@ public class Delete {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
-	public Delete(int option) {
+	public Delete(int option) throws ClassNotFoundException, SQLException {
 		initialize();
 		JPanel contentPane = new JPanel();
 		frame.setContentPane(contentPane);
 		contentPane.setLayout(null);
+		
+
+		Class.forName("com.mysql.cj.jdbc.Driver");
+
+
+        String oracleURL = "jdbc:mysql://localhost/football?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+
+
+        Connection conn =  DriverManager.getConnection(oracleURL, "root", "xusurbil15");
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBackground(SystemColor.activeCaption);
@@ -477,33 +500,23 @@ public class Delete {
 			JButton btnDelete = new JButton("Delete");
 			btnDelete.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					File playersFile = new File(
-							"C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\Players.txt");
-					File temp = new File(
-							"C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\PlayersTemp.txt");
+					PreparedStatement pst;
 					try {
-						BufferedWriter writer = new BufferedWriter(new FileWriter(temp, true));
-						Scanner sc = new Scanner(playersFile);
-						while (sc.hasNext()) {
-							String player = sc.nextLine();
-							String[] players = player.split("::");
-							if (!players[0].equals(textField.getText())) {
-								writer.write(player + "\n");
-							}
-						}
-						writer.close();
-						sc.close();
-						playersFile.delete();
-						temp.renameTo(playersFile);
-
+						pst = conn.prepareStatement("delete from players where name=?;");
+						
+						pst.setString(1, textField.getText());
+						
+			
+						pst.executeUpdate();
+						
 						Football show = new Football(1);
 						show.getFrame().setVisible(true);
 						frame.dispose();
-
-					} catch (IOException e1) {
+					} catch (SQLException | ClassNotFoundException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
+			
 				}
 			});
 			btnDelete.setBounds(168, 148, 89, 23);
@@ -522,30 +535,19 @@ public class Delete {
 			btnDelete_1.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 
-					File teamsFile = new File(
-							"C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\Teams.txt");
-					File temp = new File("C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\Temp.txt");
+					PreparedStatement pst2;
 					try {
-						BufferedWriter writer = new BufferedWriter(new FileWriter(temp, true));
-						Scanner sc = new Scanner(teamsFile);
-						while (sc.hasNext()) {
-							String team = sc.nextLine();
-							String[] teams = team.split("::");
-							if (!teams[0].equals(textField_1.getText())) {
-								writer.write(team + "\n");
-							}
-						}
-
-						writer.close();
-						sc.close();
-						teamsFile.delete();
-						temp.renameTo(teamsFile);
-
+						pst2 = conn.prepareStatement("delete from teams where team_name=?;");
+						
+						pst2.setString(1, textField_1.getText());
+						
+			
+						pst2.executeUpdate();
+						
 						Football show = new Football(2);
 						show.getFrame().setVisible(true);
 						frame.dispose();
-
-					} catch (IOException e1) {
+					} catch (SQLException | ClassNotFoundException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
@@ -577,30 +579,20 @@ public class Delete {
 			btnDelete_2.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 
-					File matchesFile = new File(
-							"C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\ChampionsMatches.txt");
-					File temp = new File("C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\Temp.txt");
+					PreparedStatement pst3;
 					try {
-						BufferedWriter writer = new BufferedWriter(new FileWriter(temp, true));
-						Scanner sc = new Scanner(matchesFile);
-						while (sc.hasNext()) {
-							String match = sc.nextLine();
-							String[] teams = match.split("::");
-							if (!teams[0].equals(textField_2.getText()) && !teams[1].equals(textField_3.getText())) {
-								writer.write(match + "\n");
-							}
-						}
-
-						writer.close();
-						sc.close();
-						matchesFile.delete();
-						temp.renameTo(matchesFile);
-
+						pst3 = conn.prepareStatement("delete from matches where local_team=? and visitor_team=?;");
+						
+						pst3.setString(1, textField_2.getText());
+						pst3.setString(2, textField_3.getText());
+						
+			
+						pst3.executeUpdate();
+						
 						Football show = new Football(3);
 						show.getFrame().setVisible(true);
 						frame.dispose();
-
-					} catch (IOException e1) {
+					} catch (SQLException | ClassNotFoundException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}

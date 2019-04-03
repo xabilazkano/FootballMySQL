@@ -7,6 +7,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -48,8 +51,10 @@ public class ModifyPlayer {
 
 	/**
 	 * Create the application.
+	 * @throws SQLException 
+	 * @throws ClassNotFoundException 
 	 */
-	public ModifyPlayer() {
+	public ModifyPlayer() throws ClassNotFoundException, SQLException {
 		initialize();
 	}
 
@@ -59,8 +64,10 @@ public class ModifyPlayer {
 
 	/**
 	 * Initialize the contents of the frame.
+	 * @throws ClassNotFoundException 
+	 * @throws SQLException 
 	 */
-	private void initialize() {
+	private void initialize() throws ClassNotFoundException, SQLException {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -70,6 +77,13 @@ public class ModifyPlayer {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		frame.setContentPane(contentPane);
 		contentPane.setLayout(null);
+		Class.forName("com.mysql.cj.jdbc.Driver");
+
+
+        String oracleURL = "jdbc:mysql://localhost/football?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+
+
+        Connection conn =  DriverManager.getConnection(oracleURL, "root", "xusurbil15");
 
 		JLabel lblName = new JLabel("Name");
 		lblName.setBounds(109, 53, 46, 14);
