@@ -63,7 +63,7 @@ public class Delete {
         String oracleURL = "jdbc:mysql://localhost/football?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
 
-        Connection conn =  DriverManager.getConnection(oracleURL, "root", "xusurbil15");
+        Connection conn =  DriverManager.getConnection(oracleURL, "root", "xabiander");
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBackground(SystemColor.activeCaption);

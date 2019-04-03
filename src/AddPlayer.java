@@ -66,7 +66,7 @@ public class AddPlayer {
         String oracleURL = "jdbc:mysql://localhost/football?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
 
-        Connection conn =  DriverManager.getConnection(oracleURL, "root", "xusurbil15");
+        Connection conn =  DriverManager.getConnection(oracleURL, "root", "xabiander");
 
 		JLabel lblName = new JLabel("Name");
 		lblName.setBounds(109, 53, 46, 14);
