@@ -7,6 +7,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -48,8 +53,10 @@ public class ModifyTeam {
 
 	/**
 	 * Create the application.
+	 * @throws SQLException 
+	 * @throws ClassNotFoundException 
 	 */
-	public ModifyTeam() {
+	public ModifyTeam() throws ClassNotFoundException, SQLException {
 		initialize();
 	}
 
@@ -59,8 +66,10 @@ public class ModifyTeam {
 
 	/**
 	 * Initialize the contents of the frame.
+	 * @throws ClassNotFoundException 
+	 * @throws SQLException 
 	 */
-	private void initialize() {
+	private void initialize() throws ClassNotFoundException, SQLException {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -70,6 +79,15 @@ public class ModifyTeam {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		frame.setContentPane(contentPane);
 		contentPane.setLayout(null);
+		
+		Class.forName("com.mysql.cj.jdbc.Driver");
+
+
+        String oracleURL = "jdbc:mysql://localhost/football?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+
+
+        Connection conn =  DriverManager.getConnection(oracleURL, "root", "xabiander");
+
 
 		JLabel lblName = new JLabel("Name");
 		lblName.setBounds(109, 53, 46, 14);
@@ -121,94 +139,65 @@ public class ModifyTeam {
 				textField_1.setVisible(false);
 				textField_2.setVisible(false);
 				btnNewButton_1.setVisible(false);
-				File teamsFile = new File(
-						"C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\Teams.txt");
-				boolean teamsFileFound = false;
-				String modTeamName="";
-				while (!teamsFileFound) {
-					try {
-						Scanner teamsScanner = new Scanner(teamsFile);
-						boolean teamFound=false;
-						while (teamsScanner.hasNext()) {
-							String team = teamsScanner.nextLine();
-							String[] teamInformation = team.split("::");
-							if (teamInformation[0].equals(textField.getText())) {
-								modTeamName=teamInformation[0];
-								teamFound=true;
-								lblNewLabel.setVisible(true);
-								lblNewLabel_1.setVisible(true);
-								textField_1.setVisible(true);
-								textField_2.setVisible(true);
-								btnNewButton_1.setVisible(true);
-								textField_1.setText(modTeamName);
-								textField_2.setText(teamInformation[1]);
-								lblName.setVisible(false);
-								textField.setVisible(false);
-								btnNewButton.setVisible(false);
-								break;
-							}
-						}
-						if (!teamFound) {
-							lblNotFound.setVisible(true);
-						}
-						teamsScanner.close();
-						teamsFileFound = true;
+				
+				PreparedStatement pst;
+				try {
+					pst = conn.prepareStatement("select * from teams where team_name=?;");
 
-					} catch (FileNotFoundException i) {
-						System.err.println("The file which contains the teams was not found, enter the correct name");
+					pst.setString(1, textField.getText());
+					ResultSet result = pst.executeQuery();
+
+					if (result.next()) {
+
+						lblNewLabel.setVisible(true);
+						lblNewLabel_1.setVisible(true);
+						
+						textField_1.setVisible(true);
+						textField_2.setVisible(true);
+						
+						btnNewButton_1.setVisible(true);
+						try {
+							textField_1.setText(result.getString(1));
+
+							textField_2.setText(result.getString(2));
+							
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						lblName.setVisible(false);
+						textField.setVisible(false);
+						btnNewButton.setVisible(false);
+					} else {
+						lblNotFound.setVisible(true);
 					}
+
+				} catch (SQLException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
 				}
 			}
-		});
+		);
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				ArrayList<Team> teams = new ArrayList<Team>();
-				File teamsFile = new File(
-						"C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\Teams.txt");
-				boolean teamsFileFound = false;
-				while (!teamsFileFound) {
-					try {
-						Scanner teamsScanner = new Scanner(teamsFile);
-						while (teamsScanner.hasNext()) {
-							String team = teamsScanner.nextLine();
-							String[] teamInformation = team.split("::");
-							Team thisTeam = new Team(teamInformation[0],teamInformation[1]);
-							teams.add(thisTeam);
-						}
-						for (int i = 0; i < teams.size(); i++) {
-							if (teams.get(i).getTeamName().equals(textField.getText())) {
-								teams.remove(i);
-								teams.add(new Team(textField_1.getText(),textField_2.getText()));
-								BufferedWriter writer = new BufferedWriter(new FileWriter(teamsFile));
-								String teamInformation = "";
-								for (int j = 0; j < teams.size(); j++) {
-									String teamName = teams.get(j).getTeamName();
-									String coach = teams.get(j).getCoach();
-									teamInformation = teamName+"::"+coach;
-									writer.write(teamInformation);
-									writer.newLine();
-								}
-								writer.close();
-								break;
-							}
-						}
-						teamsScanner.close();
-						teamsFileFound = true;
-					} catch (FileNotFoundException i) {
-						System.err.println("The file which contains the teams was not found, enter the correct name.");
-					} catch (IOException e) {
-						System.out.println("The 'FileWriter' object could not be created.");
-					}
+				PreparedStatement pst2;
+				try {
+					pst2 = conn.prepareStatement("update teams set team_name=?,coach=? where team_name=?;");
+					
+					pst2.setString(1, textField_1.getText());
+					pst2.setString(2, textField_2.getText());
+					pst2.setString(3, textField.getText());
+		
+					pst2.executeUpdate();
+					
+					Football show = new Football(2);
+					show.getFrame().setVisible(true);
+					frame.dispose();
+				} catch (SQLException | ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
-				lblName.setVisible(true);
-				textField.setText("");
-				textField.setVisible(true);
-				btnNewButton.setVisible(true);
-				lblNewLabel.setVisible(false);
-				lblNewLabel_1.setVisible(false);
-				textField_1.setVisible(false);
-				textField_2.setVisible(false);
-				btnNewButton_1.setVisible(false);
 			}
 		});
 		btnNewButton.setBounds(165, 88, 117, 23);
