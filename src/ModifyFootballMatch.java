@@ -7,6 +7,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -26,11 +31,11 @@ import java.awt.event.ComponentEvent;
 public class ModifyFootballMatch {
 
 	private JFrame frame;
-	private JTextField textField_1;
-	private JTextField textField_2;
-	private JTextField textField_3;
-	private JTextField textField_4;
-	private JTextField textField_5;
+	private JTextField textFieldNewLocalTeam;
+	private JTextField textFieldNewLocalGoals;
+	private JTextField textFieldNewVisitorTeam;
+	private JTextField textFieldVisitorTeam;
+	private JTextField textFieldNewVisitorGoals;
 
 	/**
 	 * Launch the application.
@@ -50,8 +55,11 @@ public class ModifyFootballMatch {
 
 	/**
 	 * Create the application.
+	 * 
+	 * @throws SQLException
+	 * @throws ClassNotFoundException
 	 */
-	public ModifyFootballMatch() {
+	public ModifyFootballMatch() throws ClassNotFoundException, SQLException {
 		initialize();
 	}
 
@@ -61,8 +69,11 @@ public class ModifyFootballMatch {
 
 	/**
 	 * Initialize the contents of the frame.
+	 * 
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
 	 */
-	private void initialize() {
+	private void initialize() throws ClassNotFoundException, SQLException {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -72,215 +83,161 @@ public class ModifyFootballMatch {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		frame.setContentPane(contentPane);
 		contentPane.setLayout(null);
+		Class.forName("com.mysql.cj.jdbc.Driver");
 
-		JLabel lblName = new JLabel("Local team");
-		lblName.setBounds(10, 53, 73, 14);
-		contentPane.add(lblName);
+		String oracleURL = "jdbc:mysql://localhost/football?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
-		JTextField textField = new JTextField();
-		textField.setBounds(93, 50, 97, 20);
-		contentPane.add(textField);
-		textField.setColumns(10);
+		Connection conn = DriverManager.getConnection(oracleURL, "root", "xabiander");
+
+		JLabel lblLocalTeam = new JLabel("Local team");
+		lblLocalTeam.setBounds(10, 53, 73, 14);
+		contentPane.add(lblLocalTeam);
+
+		JTextField textFieldLocalTeam = new JTextField();
+		textFieldLocalTeam.setBounds(93, 50, 97, 20);
+		contentPane.add(textFieldLocalTeam);
+		textFieldLocalTeam.setColumns(10);
 
 		JLabel lblVisitorTeam = new JLabel("Visitor team");
 		lblVisitorTeam.setBounds(213, 53, 86, 14);
 		contentPane.add(lblVisitorTeam);
 
-		textField_4 = new JTextField();
-		textField_4.setBounds(310, 50, 102, 20);
-		contentPane.add(textField_4);
-		textField_4.setColumns(10);
+		textFieldVisitorTeam = new JTextField();
+		textFieldVisitorTeam.setBounds(310, 50, 102, 20);
+		contentPane.add(textFieldVisitorTeam);
+		textFieldVisitorTeam.setColumns(10);
 
 		JLabel lblNotFound = new JLabel("Not found");
 		lblNotFound.setBounds(337, 92, 97, 14);
 		lblNotFound.setVisible(false);
 		contentPane.add(lblNotFound);
 
-		JLabel lblNewLabel = new JLabel("New local team");
-		lblNewLabel.setBounds(10, 92, 86, 14);
-		lblNewLabel.setVisible(false);
-		contentPane.add(lblNewLabel);
+		JLabel lblNewLocalTeam = new JLabel("New local team");
+		lblNewLocalTeam.setBounds(10, 92, 86, 14);
+		lblNewLocalTeam.setVisible(false);
+		contentPane.add(lblNewLocalTeam);
 
-		textField_1 = new JTextField();
-		textField_1.setBounds(93, 89, 86, 20);
-		textField_1.setVisible(false);
-		contentPane.add(textField_1);
-		textField_1.setColumns(10);
+		textFieldNewLocalTeam = new JTextField();
+		textFieldNewLocalTeam.setBounds(93, 89, 86, 20);
+		textFieldNewLocalTeam.setVisible(false);
+		contentPane.add(textFieldNewLocalTeam);
+		textFieldNewLocalTeam.setColumns(10);
 
-		JLabel lblNewLabel_1 = new JLabel("New local goals");
-		lblNewLabel_1.setBounds(213, 92, 86, 14);
-		lblNewLabel_1.setVisible(false);
-		contentPane.add(lblNewLabel_1);
+		JLabel lblNewLocalGoals = new JLabel("New local goals");
+		lblNewLocalGoals.setBounds(213, 92, 86, 14);
+		lblNewLocalGoals.setVisible(false);
+		contentPane.add(lblNewLocalGoals);
 
-		textField_2 = new JTextField();
-		textField_2.setBounds(310, 92, 86, 20);
-		textField_2.setVisible(false);
-		contentPane.add(textField_2);
-		textField_2.setColumns(10);
+		textFieldNewLocalGoals = new JTextField();
+		textFieldNewLocalGoals.setBounds(310, 92, 86, 20);
+		textFieldNewLocalGoals.setVisible(false);
+		contentPane.add(textFieldNewLocalGoals);
+		textFieldNewLocalGoals.setColumns(10);
 
-		JLabel lblNewLabel_2 = new JLabel("New visitor team");
-		lblNewLabel_2.setVisible(false);
-		lblNewLabel_2.setBounds(10, 150, 86, 14);
-		contentPane.add(lblNewLabel_2);
+		JLabel lblNewVisitorTeam = new JLabel("New visitor team");
+		lblNewVisitorTeam.setVisible(false);
+		lblNewVisitorTeam.setBounds(10, 150, 86, 14);
+		contentPane.add(lblNewVisitorTeam);
 
-		textField_3 = new JTextField();
-		textField_3.setBounds(93, 147, 86, 20);
-		textField_3.setVisible(false);
-		contentPane.add(textField_3);
-		textField_3.setColumns(10);
+		textFieldNewVisitorTeam = new JTextField();
+		textFieldNewVisitorTeam.setBounds(93, 147, 86, 20);
+		textFieldNewVisitorTeam.setVisible(false);
+		contentPane.add(textFieldNewVisitorTeam);
+		textFieldNewVisitorTeam.setColumns(10);
 
 		JLabel lblNewVisitorGoals = new JLabel("New visitor goals");
 		lblNewVisitorGoals.setVisible(false);
 		lblNewVisitorGoals.setBounds(202, 150, 97, 14);
 		contentPane.add(lblNewVisitorGoals);
 
-		textField_5 = new JTextField();
-		textField_5.setVisible(false);
-		textField_5.setBounds(310, 147, 102, 20);
-		contentPane.add(textField_5);
-		textField_5.setColumns(10);
+		textFieldNewVisitorGoals = new JTextField();
+		textFieldNewVisitorGoals.setVisible(false);
+		textFieldNewVisitorGoals.setBounds(310, 147, 102, 20);
+		contentPane.add(textFieldNewVisitorGoals);
+		textFieldNewVisitorGoals.setColumns(10);
 
-		JButton btnNewButton_1 = new JButton("Modify");
-		btnNewButton_1.setVisible(false);
-		btnNewButton_1.setBounds(157, 203, 89, 23);
-		contentPane.add(btnNewButton_1);
+		JButton btnModify = new JButton("Modify");
+		btnModify.setVisible(false);
+		btnModify.setBounds(157, 203, 89, 23);
+		contentPane.add(btnModify);
 
-		JButton btnNewButton = new JButton("Search");
-		btnNewButton.addActionListener(new ActionListener() {
+		JButton btnSearch = new JButton("Search");
+		btnSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				lblNotFound.setVisible(false);
-				lblNewLabel.setVisible(false);
-				lblNewLabel_1.setVisible(false);
-				lblNewLabel_2.setVisible(false);
-				lblNewVisitorGoals.setVisible(false);
-				textField_1.setVisible(false);
-				textField_2.setVisible(false);
-				textField_3.setVisible(false);
-				textField_5.setVisible(false);
-				btnNewButton_1.setVisible(false);
-				File footballMatchesFile = new File(
-						"C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\ChampionsMatches.txt");
-				boolean footballMatchesFileFound = false;
-				while (!footballMatchesFileFound) {
-					try {
-						Scanner footballMatchesScanner = new Scanner(footballMatchesFile);
-						boolean footballMatchFound = false;
-						while (footballMatchesScanner.hasNext()) {
-							String footballMatch = footballMatchesScanner.nextLine();
-							String[] footballMatchInformation = footballMatch.split("::");
-							if (footballMatchInformation[0].equals(textField.getText())
-									&& footballMatchInformation[2].equals(textField_4.getText())) {
-								footballMatchFound = true;
-								lblNewLabel.setVisible(true);
-								lblNewLabel_1.setVisible(true);
-								lblNewLabel_2.setVisible(true);
-								lblNewVisitorGoals.setVisible(true);
-								textField_1.setVisible(true);
-								textField_2.setVisible(true);
-								textField_3.setVisible(true);
-								textField_5.setVisible(true);
-								btnNewButton_1.setVisible(true);
-								textField_1.setText(footballMatchInformation[0]);
-								textField_2.setText(footballMatchInformation[1]);
-								textField_3.setText(footballMatchInformation[2]);
-								textField_5.setText(footballMatchInformation[3]);
-								lblName.setVisible(false);
-								lblVisitorTeam.setVisible(false);
-								textField.setVisible(false);
-								textField_4.setVisible(false);
-								btnNewButton.setVisible(false);
-								break;
-							}
-						}
-						if (!footballMatchFound) {
-							lblNotFound.setVisible(true);
-						}
-						footballMatchesScanner.close();
-						footballMatchesFileFound = true;
+				lblNewLocalTeam.setVisible(false);
+				lblNewLocalGoals.setVisible(false);
+				lblNewVisitorTeam.setVisible(false);
+				lblNewVisitorTeam.setVisible(false);
+				textFieldNewLocalTeam.setVisible(false);
+				textFieldNewLocalGoals.setVisible(false);
+				textFieldNewVisitorTeam.setVisible(false);
+				textFieldNewVisitorGoals.setVisible(false);
+				btnModify.setVisible(false);
+				PreparedStatement pst;
+				try {
+					pst = conn.prepareStatement("select * from matches where local_team=? and visitor_team=?;");
 
-					} catch (FileNotFoundException i) {
-						System.err.println(
-								"The file which contains the footballMatches was not found, enter the correct name");
+					pst.setString(1, textFieldLocalTeam.getText());
+					pst.setString(2, textFieldVisitorTeam.getText());
+					ResultSet result = pst.executeQuery();
+
+					if (result.next()) {
+						lblNewLocalTeam.setVisible(true);
+						lblNewVisitorTeam.setVisible(true);
+						lblNewLocalGoals.setVisible(true);
+						lblNewVisitorGoals.setVisible(true);
+						textFieldNewLocalTeam.setVisible(true);
+						textFieldNewVisitorTeam.setVisible(true);
+						textFieldNewLocalGoals.setVisible(true);
+						textFieldNewVisitorGoals.setVisible(true);
+						btnModify.setVisible(true);
+						textFieldNewLocalTeam.setText(result.getString(2));
+						textFieldNewVisitorTeam.setText(result.getString(4));
+						textFieldNewLocalGoals.setText(result.getString(3));
+						textFieldNewVisitorGoals.setText(result.getString(5));
+						;
+						lblLocalTeam.setVisible(false);
+						textFieldLocalTeam.setVisible(false);
+						lblVisitorTeam.setVisible(false);
+						textFieldVisitorTeam.setVisible(false);
+						btnSearch.setVisible(false);
+					} else {
+						lblNotFound.setVisible(true);
 					}
+
+				} catch (SQLException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
 				}
 			}
 		});
-		btnNewButton_1.addActionListener(new ActionListener() {
+		btnModify.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				ArrayList<FootballMatch> footballMatches = new ArrayList<FootballMatch>();
-				File footballMatchesFile = new File(
-						"C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\ChampionsMatches.txt");
-				boolean footballMatchesFileFound = false;
-				while (!footballMatchesFileFound) {
-					try {
-						Scanner footballMatchesScanner = new Scanner(footballMatchesFile);
-						while (footballMatchesScanner.hasNext()) {
-							String footballMatch = footballMatchesScanner.nextLine();
-							String[] footballMatchInformation = footballMatch.split("::");
-							Team thisLocalTeam = new Team(footballMatchInformation[0], "");
-							Team thisVisitorTeam = new Team(footballMatchInformation[2], "");
-							FootballMatch thisFootballMatch = new FootballMatch(thisLocalTeam,
-									Integer.parseInt(footballMatchInformation[1]), thisVisitorTeam,
-									Integer.parseInt(footballMatchInformation[3]));
-							footballMatches.add(thisFootballMatch);
-						}
-						for (int i = 0; i < footballMatches.size(); i++) {
-							if (footballMatches.get(i).getLocalTeam().getTeamName().equals(textField.getText())
-									&& footballMatches.get(i).getVisitorTeam().getTeamName()
-											.equals(textField_4.getText())) {
-								footballMatches.remove(i);
-								footballMatches.add(new FootballMatch(new Team(textField_1.getText(), ""),
-										Integer.parseInt(textField_2.getText()), new Team(textField_3.getText(), ""),
-										Integer.parseInt(textField_5.getText())));
-								BufferedWriter writer = new BufferedWriter(new FileWriter(footballMatchesFile));
-								String footballMatchInformation = "";
-								for (int j = 0; j < footballMatches.size(); j++) {
-									String localTeamName = footballMatches.get(j).getLocalTeam().getTeamName();
-									String localGoals = String.valueOf(footballMatches.get(j).getGoalsLocal());
-									String visitorteamName = footballMatches.get(j).getVisitorTeam().getTeamName();
-									String visitorGoals = String.valueOf(footballMatches.get(j).getGoalsVisitor());
-									footballMatchInformation = localTeamName + "::" + localGoals + "::"
-											+ visitorteamName + "::" + visitorGoals;
-									writer.write(footballMatchInformation);
-									writer.newLine();
-								}
-								writer.close();
-								break;
-							}
-						}
-						footballMatchesScanner.close();
-						footballMatchesFileFound = true;
-					} catch (FileNotFoundException i) {
-						System.err
-								.println("The file which contains the players was not found, enter the correct name.");
-					} catch (IOException e) {
-						System.out.println("The 'FileWriter' object could not be created.");
-					}
+				PreparedStatement pst2;
+				try {
+					pst2 = conn.prepareStatement("update matches set local_team=?,local_goals=?,visitor_team=?,visitor_goals=? where local_team=? and visitor_team=?;");
+
+					pst2.setString(1, textFieldNewLocalTeam.getText());
+					pst2.setString(2, textFieldNewLocalGoals.getText());
+					pst2.setString(3,textFieldNewVisitorTeam.getText());
+					pst2.setString(4, textFieldNewVisitorGoals.getText());
+					pst2.setString(5, textFieldLocalTeam.getText());
+					pst2.setString(6, textFieldVisitorTeam.getText());
+
+					pst2.executeUpdate();
+
+					Football show = new Football(3);
+					show.getFrame().setVisible(true);
+					frame.dispose();
+				} catch (SQLException | ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
-				lblName.setVisible(true);
-				textField.setText("");
-				textField.setVisible(true);
-				lblVisitorTeam.setVisible(true);
-				textField_4.setText("");
-				textField_4.setVisible(true);
-				btnNewButton.setVisible(true);
-				lblNewLabel.setVisible(false);
-				lblNewLabel_1.setVisible(false);
-				lblNewLabel_2.setVisible(false);
-				lblNewVisitorGoals.setVisible(false);
-				textField_1.setText("");
-				textField_1.setVisible(false);
-				textField_2.setText("");
-				textField_2.setVisible(false);
-				textField_3.setText("");
-				textField_3.setVisible(false);
-				textField_5.setText("");
-				textField_5.setVisible(false);
-				btnNewButton_1.setVisible(false);
 			}
 		});
-		btnNewButton.setBounds(165, 88, 117, 23);
-		contentPane.add(btnNewButton);
+		btnSearch.setBounds(165, 88, 117, 23);
+		contentPane.add(btnSearch);
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBackground(SystemColor.activeCaption);
@@ -383,10 +340,10 @@ public class ModifyFootballMatch {
 			}
 		});
 		mnAddData.add(mntmMatches_1);
-		
+
 		JMenu mnDeleteData = new JMenu("Delete data");
 		menuBar.add(mnDeleteData);
-		
+
 		JMenuItem mntmNewMenuItem = new JMenuItem("Delete player");
 		mntmNewMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -401,7 +358,7 @@ public class ModifyFootballMatch {
 			}
 		});
 		mnDeleteData.add(mntmNewMenuItem);
-		
+
 		JMenuItem mntmDeleteTeam = new JMenuItem("Delete team");
 		mntmDeleteTeam.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -416,7 +373,7 @@ public class ModifyFootballMatch {
 			}
 		});
 		mnDeleteData.add(mntmDeleteTeam);
-		
+
 		JMenuItem mntmDeleteMatch = new JMenuItem("Delete match");
 		mntmDeleteMatch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
