@@ -9,6 +9,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -51,8 +53,9 @@ public class ModifyPlayer {
 
 	/**
 	 * Create the application.
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException 
+	 * 
+	 * @throws SQLException
+	 * @throws ClassNotFoundException
 	 */
 	public ModifyPlayer() throws ClassNotFoundException, SQLException {
 		initialize();
@@ -64,8 +67,9 @@ public class ModifyPlayer {
 
 	/**
 	 * Initialize the contents of the frame.
-	 * @throws ClassNotFoundException 
-	 * @throws SQLException 
+	 * 
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
 	 */
 	private void initialize() throws ClassNotFoundException, SQLException {
 		frame = new JFrame();
@@ -79,11 +83,9 @@ public class ModifyPlayer {
 		contentPane.setLayout(null);
 		Class.forName("com.mysql.cj.jdbc.Driver");
 
+		String oracleURL = "jdbc:mysql://localhost/football?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
-        String oracleURL = "jdbc:mysql://localhost/football?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-
-
-        Connection conn =  DriverManager.getConnection(oracleURL, "root", "xusurbil15");
+		Connection conn = DriverManager.getConnection(oracleURL, "root", "xabiander");
 
 		JLabel lblName = new JLabel("Name");
 		lblName.setBounds(109, 53, 46, 14);
@@ -148,100 +150,67 @@ public class ModifyPlayer {
 				textField_2.setVisible(false);
 				textField_3.setVisible(false);
 				btnNewButton_1.setVisible(false);
-				File playersFile = new File(
-						"C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\Players.txt");
-				boolean playersFileFound = false;
-				String modPlayerName="";
-				while (!playersFileFound) {
-					try {
-						Scanner playersScanner = new Scanner(playersFile);
-						boolean playerFound=false;
-						while (playersScanner.hasNext()) {
-							String player = playersScanner.nextLine();
-							String[] playerInformation = player.split("::");
-							if (playerInformation[0].equals(textField.getText())) {
-								modPlayerName=playerInformation[0];
-								playerFound=true;
-								lblNewLabel.setVisible(true);
-								lblNewLabel_1.setVisible(true);
-								lblNewLabel_2.setVisible(true);
-								textField_1.setVisible(true);
-								textField_2.setVisible(true);
-								textField_3.setVisible(true);
-								btnNewButton_1.setVisible(true);
-								textField_1.setText(modPlayerName);
-								textField_2.setText(playerInformation[1]);
-								textField_3.setText(playerInformation[2]);
-								lblName.setVisible(false);
-								textField.setVisible(false);
-								btnNewButton.setVisible(false);
-								break;
-							}
-						}
-						if (!playerFound) {
-							lblNotFound.setVisible(true);
-						}
-						playersScanner.close();
-						playersFileFound = true;
+				PreparedStatement pst;
+				try {
+					pst = conn.prepareStatement("select * from players where name=?;");
 
-					} catch (FileNotFoundException i) {
-						System.err.println("The file which contains the players was not found, enter the correct name");
+					pst.setString(1, textField.getText());
+					ResultSet result = pst.executeQuery();
+
+					if (result.next()) {
+
+						lblNewLabel.setVisible(true);
+						lblNewLabel_1.setVisible(true);
+						lblNewLabel_2.setVisible(true);
+						textField_1.setVisible(true);
+						textField_2.setVisible(true);
+						textField_3.setVisible(true);
+						btnNewButton_1.setVisible(true);
+						try {
+							textField_1.setText(result.getString(1));
+
+							textField_2.setText(result.getString(2));
+							textField_3.setText(result.getString(3));
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						lblName.setVisible(false);
+						textField.setVisible(false);
+						btnNewButton.setVisible(false);
+					} else {
+						lblNotFound.setVisible(true);
 					}
+
+				} catch (SQLException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
 				}
 			}
 		});
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				ArrayList<FootballPlayer> footballPlayers = new ArrayList<FootballPlayer>();
-				File playersFile = new File(
-						"C:\\Users\\ik013043z1\\eclipse-workspace\\WindowBuilder\\src\\Players.txt");
-				boolean playersFileFound = false;
-				while (!playersFileFound) {
-					try {
-						Scanner playersScanner = new Scanner(playersFile);
-						while (playersScanner.hasNext()) {
-							String player = playersScanner.nextLine();
-							String[] playerInformation = player.split("::");
-							FootballPlayer thisPlayer = new FootballPlayer(playerInformation[0],Integer.parseInt(playerInformation[1]),playerInformation[2]);
-							footballPlayers.add(thisPlayer);
-						}
-						for (int i = 0; i < footballPlayers.size(); i++) {
-							if (footballPlayers.get(i).getPlayerName().equals(textField.getText())) {
-								footballPlayers.remove(i);
-								footballPlayers.add(new FootballPlayer(textField_1.getText(),Integer.parseInt(textField_2.getText()),textField_3.getText()));
-								BufferedWriter writer = new BufferedWriter(new FileWriter(playersFile));
-								String playerInformation = "";
-								for (int j = 0; j < footballPlayers.size(); j++) {
-									String playerName = footballPlayers.get(j).getPlayerName();
-									String age = String.valueOf(footballPlayers.get(j).getAge());
-									String teamName =footballPlayers.get(j).getTeamName();
-									playerInformation = playerName+"::"+age+"::"+teamName;
-									writer.write(playerInformation);
-									writer.newLine();
-								}
-								writer.close();
-								break;
-							}
-						}
-						playersScanner.close();
-						playersFileFound = true;
-					} catch (FileNotFoundException i) {
-						System.err.println("The file which contains the players was not found, enter the correct name.");
-					} catch (IOException e) {
-						System.out.println("The 'FileWriter' object could not be created.");
-					}
+				
+				PreparedStatement pst2;
+				try {
+					pst2 = conn.prepareStatement("update players set name=?,age=?,team_name=? where name=?;");
+					
+					pst2.setString(1, textField_1.getText());
+					pst2.setInt(2, Integer.parseInt(textField_2.getText()));
+					pst2.setString(3, textField_3.getText());
+					pst2.setString(4, textField.getText());
+		
+					pst2.executeUpdate();
+					
+					Football show = new Football(1);
+					show.getFrame().setVisible(true);
+					frame.dispose();
+				} catch (SQLException | ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
-				lblName.setVisible(true);
-				textField.setText("");
-				textField.setVisible(true);
-				btnNewButton.setVisible(true);
-				lblNewLabel.setVisible(false);
-				lblNewLabel_1.setVisible(false);
-				lblNewLabel_2.setVisible(false);
-				textField_1.setVisible(false);
-				textField_2.setVisible(false);
-				textField_3.setVisible(false);
-				btnNewButton_1.setVisible(false);
+				
+				
 			}
 		});
 		btnNewButton.setBounds(165, 88, 117, 23);
@@ -348,10 +317,10 @@ public class ModifyPlayer {
 			}
 		});
 		mnAddData.add(mntmMatches_1);
-		
+
 		JMenu mnDeleteData = new JMenu("Delete data");
 		menuBar.add(mnDeleteData);
-		
+
 		JMenuItem mntmNewMenuItem = new JMenuItem("Delete player");
 		mntmNewMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -366,7 +335,7 @@ public class ModifyPlayer {
 			}
 		});
 		mnDeleteData.add(mntmNewMenuItem);
-		
+
 		JMenuItem mntmDeleteTeam = new JMenuItem("Delete team");
 		mntmDeleteTeam.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -381,7 +350,7 @@ public class ModifyPlayer {
 			}
 		});
 		mnDeleteData.add(mntmDeleteTeam);
-		
+
 		JMenuItem mntmDeleteMatch = new JMenuItem("Delete match");
 		mntmDeleteMatch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
