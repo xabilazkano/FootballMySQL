@@ -64,7 +64,7 @@ public class AddMatch {
         String oracleURL = "jdbc:mysql://localhost/football?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
 
-        Connection conn =  DriverManager.getConnection(oracleURL, "root", "xabiander");
+        Connection conn =  DriverManager.getConnection(oracleURL, "dw18", "dw18");
 		
 
 		JMenuBar menuBar = new JMenuBar();

@@ -85,7 +85,7 @@ public class ModifyPlayer {
 
 		String oracleURL = "jdbc:mysql://localhost/football?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
-		Connection conn = DriverManager.getConnection(oracleURL, "root", "xabiander");
+		Connection conn = DriverManager.getConnection(oracleURL, "dw18", "dw18");
 
 		JLabel lblName = new JLabel("Name");
 		lblName.setBounds(109, 53, 46, 14);
